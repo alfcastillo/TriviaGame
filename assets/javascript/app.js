@@ -6,13 +6,15 @@ window.onload = function () {
   //  Click events 
   $(".restart").click(trivia.reset);
   $(".start").click(trivia.start);
+  $("#option-button-0").click(selection);
   $("#option-button-1").click(selection);
   $("#option-button-2").click(selection);
   $("#option-button-3").click(selection);
-  $("#option-button-4").click(selection);
 };
 
 $(".restart").hide();
+$(".answer-panel").hide();
+$("#question-panel").empty();
 // Gets Link for Theme Song
 var banglesElement = document.createElement('audio');
 banglesElement.setAttribute('src', "./assets/TheBanglesWalkLikeAnEgyptian.mp3");
@@ -32,81 +34,128 @@ $(".pause-button").on("click", function () {
 // TRIVIA QUESTIONS AND ANSWERS Object
 var egyptTrivia = {
   questionNum: 0,
-  questions: ["What does the word hieroglyphs mean?",
+  questions: [
+    "What does the word hieroglyphs mean?",
     "Ancient Egypt was responsible for the earliest known peace treaty which was between Egypt and what group of people?",
     "What was the first pyramid to be built called?",
     "What is the oldest known monumental sculpture in Egypt? (Hint: Riddle me this.)",
     "What is the name of the funerary figurine placed in tombs to serve as servants for the deceased in the afterlife.",
     "The Great Pyramids of Giza consists of how many pyramids?",
     "Which ancient Egyptian dynasty was Ramses III the pharaoh of?",
-    "Which pharaoh was the father of Ramses III? (Hint: It’s not Ramses II)",
+    "Which pharaoh was the father of Ramses III?",
     "Which pharaoh was the first historically confirmed female pharaoh?",
-    "Which female pharaoh had the longest reign?"],
-  anwsers: ["Sacred Writing","The Hittites","The Pyramid of Djoser","The Sphinx","Shabti dolls","Three","The Twentieth Dynasty","Setnakhte", "Sobekneferu","Hatshepsut"],
-  correctOption:["1","1","3","4","4","2","1","3","1","2"],
-  q1: ["Cool Writing", "Gods writing","grafitti"],  
-  q2: ["The greeks", "The Romans", "The Spartans"],
-  q3: ["The Sphinx","The Crib","Setnakhte"],
-// ”The Pyramid of Giza”,”The obelisk”,”The Asterix” 
-// ”Baby dolls”, “The crew”,”The pose”
-// “One”,”Four”,”Five” 
-// ”The Cleopatra Dynasty”,”Child Destiny”,Don’t know…ask Indiana Jones” 
-// “Ramses II”, “Ramses 1/2”, ”Ramses I”
-// “Setnakhte”, “Cleopatra”, ”Hatshepsut”
-// “Setnakhte”, “Cleopatra”, ”Sobekneferu”
+    "Which female pharaoh had the longest reign?"
+  ],
+  anwsers: ["Sacred Writing", "The Hittites", "The Pyramid of Djoser", "The Sphinx", "Shabti dolls", "Three", "The Twentieth Dynasty", "Setnakhte", "Sobekneferu", "Hatshepsut"],
+  correctOption: ["0", "0", "2", "3", "3", "1", "0", "2", "0", "1"],
+  options: [
+    ["Sacred Writing", "Cool Writing", "Gods writing", "grafitti"],
+    ["The Hittites", "The greeks", "The Romans", "The Spartans"],
+    ["The Sphinx", "The Crib", "The Pyramid of Djoser", "Setnakhte"],
+    ["The Pyramid of Giza", "The Obelisk", "The Asterix", "The Sphinx"],
+    ["Baby dolls", "The crew", "The pose", "Shabti dolls"],
+    ["One", "Three", "Four", "Five"],
+    ["The Twentieth Dynasty", "The Cleopatra Dynasty", "Child Destiny", "Don’t know…ask Indiana Jones"],
+    ["Ramses II", "Ramses 3.14159", "Setnakhte", "Ramses I"],
+    ["Sobekneferu", "Setnakhte", "Cleopatra", "Hatshepsut"],
+    ["Setnakhte", "Hatshepsut", "Cleopatra", "Sobekneferu"],
+  ],
 }
 
-
-$("#timer-panel").html("<h1 class=" + "text-center" + "><strong>01:00 </strong></h1>");
-
-//  Variable that will hold our setInterval that runs the trivia
-var intervalId;
+// Variable that set the total amout of time for the Trivia game
+var triviaTime = 60;
 
 // prevents the clock from being sped up unnecessarily
 var clockRunning = false;
 
+function results() {
+  if ((trivia.time > 0)) {
+    console.log("******** IT IS DONE ************")
+    $(".start").hide();
+    $(".restart").show();
+    $(".answer-panel").hide();
+    $("#question-panel").empty()
+    $("#question-panel").append("<h1 class=" + "text-center" + "><strong>Correct: " + trivia.correctCount + "</strong></h1>");
+    $("#question-panel").append("<h1 class=" + "text-center" + "><strong>Wrong: " + trivia.wrongCount + "</strong></h1>");
+    trivia.stop();
+  }
+}
 function selection() {
-  console.log("***** Selected Response *****");
-  console.log("Question Number--> "+trivia.question);
-  console.log("Correct Answer--> "+egyptTrivia.correctOption[trivia.question]);
-  var option =$(this).attr("data-name");
-  console.log("Option Selected: "+option);
-  if (option === egyptTrivia.correctOption[trivia.question]){
-    trivia.correct= true;
-    trivia.question++;
-    trivia.correctCount++;
-    console.log("CORRECT DUDE");
-    trivia.start();
+  if ((trivia.time > 0) && (trivia.question < egyptTrivia.questions.length)) {
+    console.log("***** Selected Response *****");
+    console.log("Question Number--> " + trivia.question);
+    console.log("Correct Answer--> " + egyptTrivia.correctOption[trivia.question]);
+    var option = $(this).attr("data-name");
+    console.log("Option Selected: " + option);
+    if (option === egyptTrivia.correctOption[trivia.question]) {
+      trivia.correct = true;
+      // trivia.question++;
+      trivia.correctCount++;
+      console.log("CORRECT DUDE");
+      $("#question-panel").html("<h1 class=" + "text-center" + "><strong>CORRECT!</strong></h1>");
+      var fiveSecondTimeout = setTimeout(function () {
+        console.log("THIS IS THE 1.5 seconds Timeout");
+        if (trivia.question < egyptTrivia.questions.length) {
+          options();
+        }
+        else {
+          results();
+          trivia.stop();
+        }
+      }, 1500);
+    }
+    else {
+      trivia.correct = false;
+      // trivia.question++;
+      trivia.wrongCount++;
+      console.log("WRONG DUDE");
+      $("#question-panel").html("<h1 class=" + "text-center" + "><strong>WRONG!</strong></h1>");
+      var fiveSecondTimeout = setTimeout(function () {
+        console.log("THIS IS THE 1.5 seconds Timeout");
+        if (trivia.question < egyptTrivia.questions.length) {
+          options();
+        }
+        else {
+          results();
+          trivia.stop();
+        }
+      }, 1500);
+    }
   }
-  else{
-    trivia.correct = false;
-    trivia.wrongCoung++;
-    console.log("WRONG DUDE");
-  }
-
-  
-
+  trivia.question++; //After all checks, increase the Trivia question number
 }
+
+// FUNCTION TO DISPLAY QUESTION OPTIONS TO BE SELECTED
 function options() {
+  console.log("********  Start Question: " + trivia.question + " ***********");
+  $(".start").hide();
+  $(".answer-panel").show();
+  $("#question-panel").html("<h1 class=" + "text-center" + "><strong>Question: " + egyptTrivia.questions[trivia.question] + "</strong></h1>");
+  // options();
   console.log("These are the Options");
-  $("#option-A").text("Cleopatra");
-  $("#option-B").text("Ramsess II");
-  $("#option-C").text("The Mummy");
-  $("#option-D").text("Google it!");
+  for (var i = 0; i < 4; i++) {
+    var x = egyptTrivia.options[trivia.question][i];
+    $("#option-button-" + i).html("<h1 class=" + "text-center" + "><strong>" + x + "</strong></h1>");
+    console.log("****** OPTION ****** " + x);
+  }
+
 }
 
-//  Our trivia object.
+
+//  Trivia object.
 var trivia = {
-  time: 10,
+  time: triviaTime,
   question: 0,
   correct: false,
   correctCount: 0,
   wrongCount: 0,
-  
+
   reset: function () {
 
-    trivia.time = 10;
+    trivia.time = triviaTime;
     trivia.question = 0;
+    trivia.correctCount = 0;
+    trivia.wrongCount = 0;
     console.log("Reset Button");
     //  Change the "timer-panel" div to "00:00."
     $("#timer-panel").html("<h1 class=" + "text-center" + "><strong>00:00</strong></h1>");
@@ -117,10 +166,12 @@ var trivia = {
   },
 
   start: function () {
-    console.log("Start");
-    $("#question-panel").html("<h1 class=" + "text-center" + "><strong>Question: " + egyptTrivia.questions[trivia.question] + "</strong></h1>");
+    // console.log("********  Start Question: "+ trivia.question+" ***********");
+    // $(".start").hide();
+    // $(".answer-panel").show();
+    // $("#question-panel").html("<h1 class=" + "text-center" + "><strong>Question: " + egyptTrivia.questions[trivia.question] + "</strong></h1>");
     options();
-    var timeLeft = 1000
+    var timeLeft = 1000;
     if (!clockRunning) {
       intervalId = setInterval(trivia.count, 1000);
       clockRunning = true;
@@ -139,7 +190,8 @@ var trivia = {
   },
   count: function () {
 
-    //  Keep track of Question Timer
+    //  Keep track of Question Timer and Question Number
+    // if ((trivia.time > 0) && (trivia.question < egyptTrivia.questions.length)) {
     if (trivia.time > 0) {
       trivia.time--;
       $("#timer-panel").html("<h1 class=" + "text-center" + "><strong>" + trivia.timeConverter(trivia.time) + "</strong></h1>");
@@ -149,14 +201,13 @@ var trivia = {
       console.log("Times UP");
       $("#question-panel").html("<h1 class=" + "text-center" + "><strong>TIMES UP!</strong></h1>");
       trivia.stop();
-
       $(".start").hide();
       $(".restart").show();
 
     }
   },
 
-  
+
   //  Time Converter Function
 
   timeConverter: function (t) {
