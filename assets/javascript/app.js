@@ -14,7 +14,9 @@ window.onload = function () {
 
 $(".restart").hide();
 $(".answer-panel").hide();
-$("#question-panel").empty();
+$(".question-panel").hide();
+$(".gif").hide();
+
 // Gets Link for Theme Song
 var banglesElement = document.createElement('audio');
 banglesElement.setAttribute('src', "./assets/TheBanglesWalkLikeAnEgyptian.mp3");
@@ -23,11 +25,13 @@ banglesElement.setAttribute('src', "./assets/TheBanglesWalkLikeAnEgyptian.mp3");
 // Theme Button
 $(".theme-button").on("click", function () {
   banglesElement.play();
+  $(".gif").show();
   console.log("Play song");
 });
 
 $(".pause-button").on("click", function () {
   banglesElement.pause();
+  $(".gif").hide();
 });
 
 
@@ -69,15 +73,19 @@ var triviaTime = 60;
 var clockRunning = false;
 
 function results() {
-  if ((trivia.time > 0)) {
+  if ((trivia.time >= 0)) {
     console.log("******** IT IS DONE ************")
     $(".start").hide();
     $(".restart").show();
-    $(".answer-panel").hide();
+    // $(".answer-panel").hide();
+    $(".answer-panel").empty();
     $("#question-panel").empty()
     $("#question-panel").append("<h1 class=" + "text-center" + "><strong>Correct: " + trivia.correctCount + "</strong></h1>");
     $("#question-panel").append("<h1 class=" + "text-center" + "><strong>Wrong: " + trivia.wrongCount + "</strong></h1>");
     trivia.stop();
+    banglesElement.play();
+    $(".gif").show();
+    // $(".answer-panel").html(<img src="/assets/images/ClosedFeistyDanishswedishfarmdog-max-1mb.gif"/>);
   }
 }
 function selection() {
@@ -170,6 +178,8 @@ var trivia = {
     // $(".start").hide();
     // $(".answer-panel").show();
     // $("#question-panel").html("<h1 class=" + "text-center" + "><strong>Question: " + egyptTrivia.questions[trivia.question] + "</strong></h1>");
+  
+    $(".question-panel").show();
     options();
     var timeLeft = 1000;
     if (!clockRunning) {
@@ -199,7 +209,8 @@ var trivia = {
     }
     else {
       console.log("Times UP");
-      $("#question-panel").html("<h1 class=" + "text-center" + "><strong>TIMES UP!</strong></h1>");
+      $("#timer-panel").html("<h1 class=" + "text-center" + "><strong>TIMES UP!</strong></h1>");
+      results();
       trivia.stop();
       $(".start").hide();
       $(".restart").show();
